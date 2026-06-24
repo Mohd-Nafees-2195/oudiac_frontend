@@ -15,6 +15,7 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
+import { useAuth } from "../../Auth/AuthContext";
 
 const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/admin" },
@@ -33,6 +34,12 @@ const menuItems = [
 ];
 
 const Sidebar = ({ isOpen }) => {
+  const {logout}=useAuth();
+
+  const handleLogout = () => {
+    logout();
+  }
+
   return (
     <aside
       className={`bg-white border-r border-gray-200 h-screen fixed left-0 top-0 z-40 transition-transform duration-300 flex flex-col w-64 ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
@@ -82,7 +89,9 @@ const Sidebar = ({ isOpen }) => {
 
       {/* Logout */}
       <div className="p-4 border-t border-gray-200">
-        <button className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
+        <button 
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer">
           <LogOut className="w-5 h-5" />
           Logout
         </button>

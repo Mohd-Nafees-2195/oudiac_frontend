@@ -84,7 +84,7 @@ const AddStore = () => {
     console.log("Submitting Store Data:", data);
 
     try {
-      const response = await Api.post("/stores/admin/oudiac/add", data);
+      const response = await Api.post("/stores/oudiac/add", data);
 
       console.log(response.data);
       alert("Store added successfully!");

@@ -25,11 +25,16 @@ import AddStore from "./pages/Admin/AddStore";
 import CreateCoupon from "./pages/Admin/CreateCoupon";
 import Managers from "./pages/Admin/Managers";
 import AddManager from "./pages/Admin/AddManager";
+import { AuthProvider } from "./components/Auth/AuthContext";
+import Login from "./pages/Admin/Login";
+import ProtectedRoute from "./components/Auth/ProtectedRoute";
+import ServerDown from "./pages/ServerDown";
 
 const App = () => {
   return (
     <>
       <Toaster />
+      <AuthProvider>
       <CartProvider>
         <Routes>
           {/* Customer Route */}
@@ -38,30 +43,36 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/checkout" element={<Checkout />} />
 
-          {/* Admin Routes Grouped under /admin */}
-          <Route path="/admin">
-            {/* 'index' means this loads exactly on /admin */}
-            <Route index element={<Dashboard />} />
+          <Route path="/503" element={<ServerDown />} />
 
-            {/* This loads on /admin/add-product */}
-            <Route path="add-product" element={<AddProduct />} />
-            <Route path="inventory" element={<Inventory />} />
-            <Route path="products" element={<Products />} />
-            <Route path="orders" element={<Orders />} />
-            <Route path="stores" element={<Stores />} />
-            <Route path="customers" element={<Customers />} />
-            <Route path="managers" element={<Managers />} />
-            <Route path="add-manager" element={<AddManager />} />
-            <Route path="delivery" element={<DeliveryPartners />} />
-            <Route path="analytics" element={<Analytics />} />
-            <Route path="coupons" element={<Coupons />} />
-            <Route path="notifications" element={<Notifications />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="stores/add" element={<AddStore />} />
-            <Route path="coupons/add" element={<CreateCoupon />} />
+          {/* Admin Routes Grouped under /admin */}
+          
+          <Route >
+            <Route path="/admin/login" element={<Login />} />
+            {/* 'index' means this loads exactly on /admin */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/admin" element={<Dashboard />} />
+              {/* This loads on /admin/add-product */}
+              <Route path="/admin/add-product" element={<AddProduct />} />
+              <Route path="/admin/inventory" element={<Inventory />} />
+              <Route path="/admin/products" element={<Products />} />
+              <Route path="/admin/orders" element={<Orders />} />
+              <Route path="/admin/stores" element={<Stores />} />
+              <Route path="/admin/customers" element={<Customers />} />
+              <Route path="/admin/managers" element={<Managers />} />
+              <Route path="/admin/add-manager" element={<AddManager />} />
+              <Route path="/admin/delivery" element={<DeliveryPartners />} />
+              <Route path="/admin/analytics" element={<Analytics />} />
+              <Route path="/admin/coupons" element={<Coupons />} />
+              <Route path="/admin/notifications" element={<Notifications />} />
+              <Route path="/admin/settings" element={<Settings />} />
+              <Route path="/admin/stores/add" element={<AddStore />} />
+              <Route path="/admin/coupons/add" element={<CreateCoupon />} />
+            </Route>
           </Route>
         </Routes>
       </CartProvider>
+      </AuthProvider>
     </>
   );
 };
