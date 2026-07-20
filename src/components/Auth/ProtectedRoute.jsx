@@ -4,6 +4,7 @@ import Dashboard from "../../pages/Admin/Dashboard";
 import { useEffect } from "react";
 import { getJwtFromCookie } from "../../pages/API/Api";
 import { jwtDecode } from "jwt-decode";
+import FuturisticLoader from "../Admin/Layout/FuturisticLoader";
 
 export default function ProtectedRoute() {
   const { isAuthenticated, loading } = useAuth();
@@ -31,11 +32,12 @@ export default function ProtectedRoute() {
   // 1. If we are still checking the backend, show a loader (prevents flickering)
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin">
-            <span className="sr-only">Loading...</span>
-        </div>
-      </div>
+       <FuturisticLoader/>
+      // <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      //   <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin">
+      //       <span className="sr-only">Loading...</span>
+      //   </div>
+      // </div>
     );
   }
 

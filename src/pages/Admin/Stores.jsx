@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import AdminLayout from "../../components/Admin/Layout/AdminLayout"; // Adjust path based on your setup
 import { useNavigate } from "react-router-dom";
-import Api from "../API/Api";
+import {Api} from "../API/Api";
 
 // Dummy Stores Data
 const initialStores = [
@@ -102,7 +102,7 @@ const Stores = () => {
 
   const fetchStores = async () => {
     try {
-      const response = await Api.get("/stores/admin/oudiac/get-stores");
+      const response = await Api.get("/stores/oudiac/get-stores");
 
       // const managersData = await response.json();
       console.log("Fetched Stores:", response.data);

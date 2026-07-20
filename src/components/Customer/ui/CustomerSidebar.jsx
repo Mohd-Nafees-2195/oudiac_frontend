@@ -14,30 +14,25 @@ import {
   Bell,
   Settings,
   LogOut,
+  Home,
+  Grid,
+  List,
 } from "lucide-react";
 import { useAuth } from "../../Auth/AuthContext";
 
 const menuItems = [
-  { name: "Dashboard", icon: LayoutDashboard, path: "/admin" },
-  { name: "Products", icon: Package, path: "/admin/products" },
-  { name: "Add New", icon: PlusCircle, path: "/admin/add-new" },
-  { name: "Inventory", icon: Box, path: "/admin/inventory" },
-  { name: "Orders", icon: ShoppingCart, path: "/admin/orders" },
-  { name: "Stores", icon: Store, path: "/admin/stores" },
-  { name: "Customers", icon: Users, path: "/admin/customers" },
-  { name: "Managers", icon: Users, path: "/admin/managers" },
-  { name: "Delivery Partners", icon: Bike, path: "/admin/delivery" },
-  { name: "Analytics", icon: TrendingUp, path: "/admin/analytics" },
-  { name: "Coupons", icon: Tag, path: "/admin/coupons" },
-  { name: "Notifications", icon: Bell, path: "/admin/notifications" },
-  { name: "Settings", icon: Settings, path: "/admin/settings" },
+  { name: "Shop", icon: Home, path: "/home" },
+  { name: "Browse", icon: Grid, path: "/browse" },
+  { name: "My List", icon: List, path: "/my-list" },
+  { name: "Wholesale", icon: Package, path: "/admin/inventory" },
+  { name: "Address", icon: PlusCircle, path: "/add-address" },
 ];
 
-const Sidebar = ({ isOpen }) => {
-  const {logout}=useAuth();
+const CustomerSidebar = ({ isOpen }) => {
+  const {customerLogout}=useAuth();
 
   const handleLogout = () => {
-    logout();
+    customerLogout();
   }
 
   return (
@@ -61,8 +56,8 @@ const Sidebar = ({ isOpen }) => {
             className="w-10 h-10 rounded-full"
           />
           <div>
-            <h3 className="text-sm font-semibold text-gray-800">ATIF</h3>
-            <p className="text-xs text-gray-500">Super Admin</p>
+            <h3 className="text-sm font-semibold text-gray-800">Hi!!</h3>
+            <p className="text-xs text-gray-500">Customer Name</p>
           </div>
         </div>
       </div>
@@ -100,4 +95,4 @@ const Sidebar = ({ isOpen }) => {
   );
 };
 
-export default Sidebar;
+export default CustomerSidebar;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   IndianRupee,
   ShoppingBag,
@@ -12,14 +12,34 @@ import StatsCard from "../../components/Admin/Ui/StatsCard";
 import RevenueChart from "../../components/Admin/Charts/RevenueChart";
 import RecentOrders from "../../components/Admin/Dashboard/RecentOrders";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../components/Auth/AuthContext";
+import {Api} from "../API/Api";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const stores = [
-    { name: "Koramangala Hub", orders: 420 },
-    { name: "Indiranagar Main", orders: 385 },
-    { name: "HSR Layout Sector 2", orders: 310 },
-  ];
+  const {user,logout}=useAuth();
+  const [stores,setStores]=useState([]);
+
+  if(user==null||user.role==='USER'){
+    logout();
+  }
+    const fetchStores = async () => {
+    try {
+      const response = await Api.get(
+        "/stores/oudiac/get-stores",
+      );
+
+      // const managersData = await response.json();
+      console.log("Fetched Stores:", response.data);
+      setStores(response.data);
+    } catch (error) {
+      console.error("Error fetching Stores:", error);
+    }
+  };
+
+  useEffect(()=>{
+    fetchStores();
+  },[])
 
   return (
     <AdminLayout>
@@ -115,10 +135,10 @@ const Dashboard = () => {
               {stores.map((store, i) => (
                 <div key={i} className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm font-medium">
-                    {store.name}
+                    {store.storeName}
                   </span>
                   <span className="text-gray-900 font-bold">
-                    {store.orders}
+                    {store.ordersToday || 0}
                   </span>
                 </div>
               ))}
