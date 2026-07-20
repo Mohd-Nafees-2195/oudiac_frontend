@@ -11,10 +11,13 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import AdminLayout from "../../components/Admin/Layout/AdminLayout"; // Adjust path if needed
-import Api from "../API/Api";
+import {Api} from "../API/Api";
+import toast from "react-hot-toast";
+import FuturisticLoader from "../../components/Admin/Layout/FuturisticLoader";
 
 const AddStore = () => {
   const navigate = useNavigate();
+  const [loading, setLoading]=useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -27,13 +30,6 @@ const AddStore = () => {
     pincode: "",
     storeStatus: "ACTIVE",
     storeSku: "",
-
-    // openTime: "24/7",
-    // capabilities: {
-    //   cod: true,
-    //   coldStorage: true,
-    //   twentyFourSeven: false,
-    // },
   });
 
   // Dummy Image State for UI demonstration
@@ -70,6 +66,7 @@ const AddStore = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = new FormData();
+    console.log(formData,"New Form Data");
 
     Object.keys(formData).forEach((key) => {
       data.append(key, formData[key]);
@@ -81,22 +78,45 @@ const AddStore = () => {
 
     // console.log("Submitting Store Data:", formData);
     // console.log("Images to upload:", images);
-    console.log("Submitting Store Data:", data);
+    // console.log("Submitting Store Data:", data);
+    setLoading(true);
 
     try {
       const response = await Api.post("/stores/oudiac/add", data);
 
       console.log(response.data);
-      alert("Store added successfully!");
+      toast.success("Store added successfully!");
       navigate("/admin/stores");
     } catch (error) {
-      console.error(error);
-      alert("Failed to save store.");
+     if (error.response) {
+      // This is where your custom Spring Boot message lives!
+      const backendData = error.response.data;
+      const status = error.response.status;
+
+      console.log("Backend Status Code:", status);
+      console.log("Backend Error Data:", backendData);
+
+      // Depending on how Spring Boot is configured, your message might be directly 
+      // in 'data', or nested inside a 'message' field like data.message.
+      
+      const errorMessage = backendData.message || backendData || "Something went wrong";
+      toast.error(errorMessage); // Shows: "Manager not exist!!Please enter correct email"
+
+    } else if (error.request) {
+      // The request was made but no response was received (e.g., server is down)
+      console.error("No response from server:", error.request);
+      toast.error("Server is unreachable. Please try again later.");
+    } else {
+      // Something happened in setting up the request
+      console.error("Axios setup error:", error.message);
     }
+    }
+    setLoading(false)
   };
 
   return (
-    <AdminLayout>
+    <>
+   {loading ? (<FuturisticLoader/>) :( <AdminLayout>
       <form onSubmit={handleSubmit} className="max-w-6xl mx-auto">
         {/* Header Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -475,7 +495,8 @@ const AddStore = () => {
           </div>
         </div>
       </form>
-    </AdminLayout>
+    </AdminLayout>)}
+    </>
   );
 };
 

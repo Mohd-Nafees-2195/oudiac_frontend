@@ -1,0 +1,30 @@
+export const categories = [
+  { id: "fresh-fruits", name: "Fresh Fruits & Vegetable", emoji: "🥦", color: "#F7F8F3" },
+  { id: "cooking-oil", name: "Cooking Oil & Ghee", emoji: "🫙", color: "#FFF8F0" },
+  { id: "meat-fish", name: "Meat & Fish", emoji: "🍗", color: "#FFF0F0" },
+  { id: "bakery", name: "Bakery & Snacks", emoji: "🍞", color: "#FFFBF0" },
+  { id: "dairy", name: "Dairy & Eggs", emoji: "🥛", color: "#F0F8FF" },
+  { id: "beverages", name: "Beverages", emoji: "🧃", color: "#F5F0FF" },
+  { id: "cereals", name: "Cereals & Breakfast", emoji: "🥣", color: "#FFF5F0" },
+  { id: "frozen", name: "Frozen Foods", emoji: "🧊", color: "#F0FAFF" },
+];
+
+export const products = [
+  { id: 1, name: "Organic Bananas", price: 1.99, unit: "7pcs, Price", category: "fresh-fruits", emoji: "🍌", badge: null, rating: 4.8 },
+  { id: 2, name: "Red Apple", price: 4.99, unit: "1kg, Price", category: "fresh-fruits", emoji: "🍎", badge: "Best", rating: 4.9 },
+  { id: 3, name: "Bell Pepper Red", price: 1.49, unit: "1kg, Price", category: "fresh-fruits", emoji: "🫑", badge: null, rating: 4.5 },
+  { id: 4, name: "Ginger", price: 2.99, unit: "250gm, Price", category: "fresh-fruits", emoji: "🫚", badge: null, rating: 4.3 },
+  { id: 5, name: "Sprite Can", price: 1.50, unit: "325ml, Price", category: "beverages", emoji: "🥤", badge: null, rating: 4.7 },
+  { id: 6, name: "Diet Coke", price: 1.50, unit: "325ml, Price", category: "beverages", emoji: "🥫", badge: null, rating: 4.6 },
+  { id: 7, name: "Apple & Grape Juice", price: 15.99, unit: "2L, Price", category: "beverages", emoji: "🧃", badge: null, rating: 4.4 },
+  { id: 8, name: "Egg Noodles", price: 15.99, unit: "2kg, Price", category: "bakery", emoji: "🍜", badge: null, rating: 4.2 },
+  { id: 9, name: "Mayonnaise", price: 6.99, unit: "300ml, Price", category: "cooking-oil", emoji: "🫙", badge: null, rating: 4.5 },
+  { id: 10, name: "Fresh Milk", price: 3.49, unit: "1L, Price", category: "dairy", emoji: "🥛", badge: "New", rating: 4.8 },
+  { id: 11, name: "Chicken Breast", price: 8.99, unit: "500g, Price", category: "meat-fish", emoji: "🍗", badge: null, rating: 4.6 },
+  { id: 12, name: "Greek Yogurt", price: 4.29, unit: "200g, Price", category: "dairy", emoji: "🫙", badge: null, rating: 4.7 },
+];
+
+export const exclusiveOffers = [
+  { id: 1, name: "Best Attar", discount: "25% OFF", color: "#FFF9E6", emoji: "🍌" },
+  { id: 2, name: "Fresh Perfume", discount: "15% OFF", color: "#FFF0F0", emoji: "🍅" },
+];

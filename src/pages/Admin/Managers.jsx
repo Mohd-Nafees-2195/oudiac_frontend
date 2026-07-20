@@ -13,7 +13,7 @@ import {
   ArrowDownToLine,
 } from "lucide-react";
 import AdminLayout from "../../components/Admin/Layout/AdminLayout";
-import Api from "../API/Api";
+import {Api} from "../API/Api";
 import { useNavigate } from "react-router-dom";
 
 // Dummy Customers Data
@@ -96,7 +96,7 @@ const Managers = () => {
   const fetchManagers = async () => {
     try {
       const response = await Api.get(
-        "http://localhost:8080/api/admin/oudiac/get-managers",
+        "/admin/oudiac/get-managers",
       );
 
       // const managersData = await response.json();
@@ -293,7 +293,7 @@ const Managers = () => {
           <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
               <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
-                <th className="px-6 py-4 font-medium">Customer</th>
+                <th className="px-6 py-4 font-medium">Managers</th>
                 <th className="px-6 py-4 font-medium">Contact Details</th>
                 <th className="px-6 py-4 font-medium text-center">Orders</th>
                 <th className="px-6 py-4 font-medium">Total Spent</th>

@@ -14,78 +14,8 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import AdminLayout from "../../components/Admin/Layout/AdminLayout"; // Adjust path based on your setup
-import Api from "../API/Api";
+import {Api} from "../API/Api";
 import { filterByDate } from "../../components/Utils/StoreUtils";
-
-// Dummy Product Catalog Data
-const initialProducts = [
-  {
-    id: 1,
-    name: "Amul Taaza Toned Milk",
-    category: "Dairy & Bread",
-    price: 72,
-    mrp: 74,
-    status: "Published",
-    date: "May 28, 2026",
-    image:
-      "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=64&q=80",
-  },
-  {
-    id: 2,
-    name: "Fresho Onion - Medium",
-    category: "Vegetables",
-    price: 32,
-    mrp: 45,
-    status: "Published",
-    date: "May 27, 2026",
-    image:
-      "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=64&q=80",
-  },
-  {
-    id: 3,
-    name: "Premium California Almonds",
-    category: "Snacks",
-    price: 420,
-    mrp: 550,
-    status: "Draft",
-    date: "May 25, 2026",
-    image:
-      "https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=64&q=80",
-  },
-  {
-    id: 4,
-    name: "Coca-Cola Soft Drink",
-    category: "Beverages",
-    price: 40,
-    mrp: 45,
-    status: "Published",
-    date: "May 20, 2026",
-    image:
-      "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=64&q=80",
-  },
-  {
-    id: 5,
-    name: "Seasonal Mangoes - Alphonso",
-    category: "Fruits",
-    price: 850,
-    mrp: 1200,
-    status: "Hidden",
-    date: "May 15, 2026",
-    image:
-      "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=64&q=80",
-  },
-  {
-    id: 6,
-    name: "Britannia NutriChoice",
-    category: "Snacks",
-    price: 125,
-    mrp: 150,
-    status: "Published",
-    date: "May 10, 2026",
-    image:
-      "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=64&q=80",
-  },
-];
 
 const Products = () => {
   const navigate = useNavigate();
@@ -93,8 +23,10 @@ const Products = () => {
   const [activeTab, setActiveTab] = useState("All");
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [products, setProducts] = useState([]);
+  const [loading,setLoading]=useState(false);
 
   const fetchProducts = async () => {
+    setLoading(true)
     const page = 0;
     const size = 10;
     try {
@@ -106,6 +38,7 @@ const Products = () => {
     } catch (error) {
       console.error("Error fetching products:", error);
     }
+    setLoading(false)
   };
 
   useEffect(() => {
@@ -166,7 +99,17 @@ const Products = () => {
   };
 
   return (
-    <AdminLayout>
+    <>
+    {loading ? (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/20 backdrop-blur-[2px]">
+    <div className="rounded-2xl bg-white/95 p-8 shadow-2xl">
+      <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+      <p className="mt-4 text-center text-gray-600">
+        Fetching flight data...
+      </p>
+    </div>
+  </div>
+):(<AdminLayout>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
@@ -271,7 +214,7 @@ const Products = () => {
                 </th>
                 <th className="px-6 py-4 font-medium">Product</th>
                 <th className="px-6 py-4 font-medium">Category</th>
-                <th className="px-6 py-4 font-medium">Pricing</th>
+                {/* <th className="px-6 py-4 font-medium">Pricing</th> */}
                 <th className="px-6 py-4 font-medium">Status</th>
                 <th className="px-6 py-4 font-medium">Date Added</th>
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
@@ -310,7 +253,7 @@ const Products = () => {
                             {product.name}
                           </p>
                           <p className="text-xs text-gray-500 mt-0.5">
-                            ID: {product.sku.toString().padStart(5, "0")}
+                            ID: {product.code.toString().padStart(5, "0")}
                           </p>
                         </div>
                       </div>
@@ -320,7 +263,7 @@ const Products = () => {
                         {product.category.name}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    {/* <td className="px-6 py-4">
                       <div className="flex flex-col">
                         <span className="font-bold text-gray-900 text-sm">
                           ₹{product.sellingPrice}
@@ -331,7 +274,7 @@ const Products = () => {
                           </span>
                         )}
                       </div>
-                    </td>
+                    </td> */}
                     <td className="px-6 py-4">
                       {getStatusBadge(product.productStatus)}
                     </td>
@@ -407,7 +350,8 @@ const Products = () => {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </AdminLayout>)}
+    </>
   );
 };
 
