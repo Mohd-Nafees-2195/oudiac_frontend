@@ -24,16 +24,16 @@ const menuItems = [
   { name: "Shop", icon: Home, path: "/home" },
   { name: "Browse", icon: Grid, path: "/browse" },
   { name: "My List", icon: List, path: "/my-list" },
-  { name: "Wholesale", icon: Package, path: "/admin/inventory" },
+  { name: "Wholesale", icon: Package, path: "/wholesale" },
   { name: "Address", icon: PlusCircle, path: "/add-address" },
 ];
 
 const CustomerSidebar = ({ isOpen }) => {
-  const {customerLogout}=useAuth();
+  const { customerLogout } = useAuth();
 
   const handleLogout = () => {
     customerLogout();
-  }
+  };
 
   return (
     <aside
@@ -84,9 +84,10 @@ const CustomerSidebar = ({ isOpen }) => {
 
       {/* Logout */}
       <div className="p-4 border-t border-gray-200">
-        <button 
+        <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer">
+          className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+        >
           <LogOut className="w-5 h-5" />
           Logout
         </button>

@@ -12,92 +12,22 @@ import {
   PackageX,
 } from "lucide-react";
 import AdminLayout from "../../components/Admin/Layout/AdminLayout"; // Adjust path if using <Outlet/> pattern
-import {Api} from "../API/Api";
-
-// Dummy Inventory Data
-const initialInventory = [
-  {
-    id: 1,
-    name: "Amul Taaza Toned Milk",
-    sku: "MLK-AML-1L",
-    category: "Dairy",
-    price: 72,
-    stock: 145,
-    status: "In Stock",
-    image:
-      "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=64&q=80",
-  },
-  {
-    id: 2,
-    name: "Fresho Onion",
-    sku: "VEG-ONI-1K",
-    category: "Vegetables",
-    price: 32,
-    stock: 12,
-    status: "Low Stock",
-    image:
-      "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=64&q=80",
-  },
-  {
-    id: 3,
-    name: "Farmley Premium Almonds",
-    sku: "NUT-FRM-500",
-    category: "Snacks",
-    price: 420,
-    stock: 0,
-    status: "Out of Stock",
-    image:
-      "https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=64&q=80",
-  },
-  {
-    id: 4,
-    name: "Coca-Cola Soft Drink",
-    sku: "BEV-COK-750",
-    category: "Beverages",
-    price: 40,
-    stock: 85,
-    status: "In Stock",
-    image:
-      "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=64&q=80",
-  },
-  {
-    id: 5,
-    name: "Aashirvaad Whole Wheat Atta",
-    sku: "GRO-ASH-5K",
-    category: "Groceries",
-    price: 245,
-    stock: 8,
-    status: "Low Stock",
-    image:
-      "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=64&q=80",
-  },
-  {
-    id: 6,
-    name: "Britannia NutriChoice",
-    sku: "SNA-BRT-1K",
-    category: "Snacks",
-    price: 125,
-    stock: 230,
-    status: "In Stock",
-    image:
-      "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=64&q=80",
-  },
-];
+import { Api } from "../API/Api";
 
 const Inventory = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [inventory, setInventory] = useState([]);
-  const [total,setTotal]=useState({
-      "Total Items": 0,
-      "In Stock Items": 0,
-      "Low Stock Items": 0,
-      "Out of Stock Items": 0,
-    });
+  const [total, setTotal] = useState({
+    "Total Items": 0,
+    "In Stock Items": 0,
+    "Low Stock Items": 0,
+    "Out of Stock Items": 0,
+  });
 
   // Status Badge styling logic
   const getStatusStyle = (stock) => {
-    const status=getStatus(stock);
+    const status = getStatus(stock);
     switch (status) {
       case "In Stock":
         return "bg-emerald-50 text-emerald-600 border-emerald-200";
@@ -110,15 +40,12 @@ const Inventory = () => {
     }
   };
 
-    const getStatus = (stock) => {
-      if(stock==0)
-        return "Out of Stock";
-      else if(stock<=250) 
-       return "Low Stock";
-      else
-        return "In Stock"
+  const getStatus = (stock) => {
+    if (stock == 0) return "Out of Stock";
+    else if (stock <= 250) return "Low Stock";
+    else return "In Stock";
   };
-  const calculateTotals=(data)=>{
+  const calculateTotals = (data) => {
     const newTotals = {
       "Total Items": data.length,
       "In Stock Items": 0,
@@ -126,26 +53,23 @@ const Inventory = () => {
       "Out of Stock Items": 0,
     };
     data.forEach((item) => {
-     
       const status = getStatus(item.quantity);
 
       // 2. Increment the correct counter based on the status
       if (status === "In Stock") {
         newTotals["In Stock Items"]++;
-        
-      } 
+      }
       // Catching both the correct spelling and the "stoxk" typo from your database!
       else if (status === "Out of Stock" || status === "out of stoxk") {
         newTotals["Out of Stock Items"]++;
-        
-      } 
+      }
       // If you eventually add a "Low Stock" string to your status column
       else if (status === "Low Stock") {
         newTotals["Low Stock Items"]++;
       }
     });
     setTotal(newTotals);
-  }
+  };
 
   // Filter Logic
   const filteredInventory = inventory.filter((item) => {
@@ -157,17 +81,36 @@ const Inventory = () => {
     return matchesSearch && matchesStatus;
   });
 
- // /products/oudiac/get-products
-   const fetchProducts = async () => {
+  // /products/oudiac/get-products
+  const fetchProducts = async () => {
     const page = 0;
     const size = 10;
     try {
       const response = await Api.get("/products/oudiac/get-products", {
         params: { page, size },
       });
-      setInventory(response.data.content);
+      const products = response.data.content;
+      const list = products.flatMap((product) =>
+        product.productVariants.map((variant) => ({
+          name: product.name,
+          brand: product.brand.name,
+          category: product.category.name,
+          imageUrl: product.imageUrl,
+
+          price: variant.price,
+          sellingPrice: variant.sellingPrice,
+          quantity: variant.quantity,
+          id: variant.id,
+          mrp: variant.mrp,
+          status: getStatus(variant.quantity),
+          stock: variant.stock,
+          sku: variant.sku,
+          variantType: variant.variantType,
+        })),
+      );
+      setInventory(list);
       calculateTotals(response.data.content);
-      // console.log("Fetched products:", response.data);
+      console.log("Fetched products:", response.data);
       // console.log("filtered Item :",filteredInventory);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -213,7 +156,9 @@ const Inventory = () => {
           <p className="text-sm font-medium text-gray-500 mb-1">
             Total Products
           </p>
-          <h4 className="text-2xl font-bold text-gray-900">{total["Total Items"]}</h4>
+          <h4 className="text-2xl font-bold text-gray-900">
+            {total["Total Items"]}
+          </h4>
         </div>
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
           <div className="flex items-center justify-between mb-4">
@@ -222,7 +167,9 @@ const Inventory = () => {
             </div>
           </div>
           <p className="text-sm font-medium text-gray-500 mb-1">In Stock</p>
-          <h4 className="text-2xl font-bold text-gray-900">{total["In Stock Items"]}</h4>
+          <h4 className="text-2xl font-bold text-gray-900">
+            {total["In Stock Items"]}
+          </h4>
         </div>
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-amber-400">
           <div className="flex items-center justify-between mb-4">
@@ -233,7 +180,9 @@ const Inventory = () => {
           <p className="text-sm font-medium text-gray-500 mb-1">
             Low Stock Items
           </p>
-          <h4 className="text-2xl font-bold text-gray-900">{total["Low Stock Items"]}</h4>
+          <h4 className="text-2xl font-bold text-gray-900">
+            {total["Low Stock Items"]}
+          </h4>
         </div>
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-red-400">
           <div className="flex items-center justify-between mb-4">
@@ -242,7 +191,9 @@ const Inventory = () => {
             </div>
           </div>
           <p className="text-sm font-medium text-gray-500 mb-1">Out of Stock</p>
-          <h4 className="text-2xl font-bold text-gray-900">{total["Out of Stock Items"]}</h4>
+          <h4 className="text-2xl font-bold text-gray-900">
+            {total["Out of Stock Items"]}
+          </h4>
         </div>
       </div>
 
@@ -293,6 +244,7 @@ const Inventory = () => {
                 <th className="px-6 py-4 font-medium">Category</th>
                 <th className="px-6 py-4 font-medium">Price</th>
                 <th className="px-6 py-4 font-medium">Stock</th>
+                <th className="px-6 py-4 font-medium">Variant</th>
                 <th className="px-6 py-4 font-medium">Status</th>
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
@@ -322,26 +274,29 @@ const Inventory = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-600 text-sm">
-                      {item.category.name}
+                      {item.category}
                     </td>
                     <td className="px-6 py-4 font-medium text-gray-900 text-sm">
                       ₹{item.sellingPrice}
+                    </td>
+                    <td className="px-6 py-4 font-medium text-gray-900 text-sm">
+                      {item.variantType}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <span
                           className={`text-sm font-semibold ${item.stock === 0 ? "text-red-600" : "text-gray-900"}`}
                         >
-                          {item.quantity}
+                          {item.stock}
                         </span>
                         <span className="text-xs text-gray-400">units</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`px-2.5 py-1 text-xs font-bold rounded-full border ${getStatusStyle(item.quantity)}`}
+                        className={`px-2.5 py-1 text-xs font-bold rounded-full border ${getStatusStyle(item.stock)}`}
                       >
-                        {getStatus(item.quantity)}
+                        {getStatus(item.stock)}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">

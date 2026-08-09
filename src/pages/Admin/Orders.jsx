@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Search,
   Filter,
@@ -13,101 +13,56 @@ import {
   Calendar,
 } from "lucide-react";
 import AdminLayout from "../../components/Admin/Layout/AdminLayout"; // Adjust path based on your setup
-
-// Dummy Orders Data
-const initialOrders = [
-  {
-    id: "#ORD-0921",
-    customer: "Alex Johnson",
-    phone: "+91 98765 43210",
-    items: 5,
-    amount: 1240,
-    date: "Today, 04:45 PM",
-    status: "Processing",
-    payment: "Paid",
-  },
-  {
-    id: "#ORD-0920",
-    customer: "Maria Garcia",
-    phone: "+91 98765 43211",
-    items: 2,
-    amount: 850,
-    date: "Today, 04:30 PM",
-    status: "Out for Delivery",
-    payment: "COD",
-  },
-  {
-    id: "#ORD-0919",
-    customer: "James Smith",
-    phone: "+91 98765 43212",
-    items: 12,
-    amount: 3100,
-    date: "Today, 03:15 PM",
-    status: "Delivered",
-    payment: "Paid",
-  },
-  {
-    id: "#ORD-0918",
-    customer: "Priya Sharma",
-    phone: "+91 98765 43213",
-    items: 1,
-    amount: 450,
-    date: "Today, 01:20 PM",
-    status: "Delivered",
-    payment: "Paid",
-  },
-  {
-    id: "#ORD-0917",
-    customer: "Robert Chen",
-    phone: "+91 98765 43214",
-    items: 8,
-    amount: 2100,
-    date: "Today, 11:10 AM",
-    status: "Cancelled",
-    payment: "Refunded",
-  },
-  {
-    id: "#ORD-0916",
-    customer: "Anita Desai",
-    phone: "+91 98765 43215",
-    items: 4,
-    amount: 620,
-    date: "Yesterday, 08:30 PM",
-    status: "Delivered",
-    payment: "COD",
-  },
-  {
-    id: "#ORD-0915",
-    customer: "Vikram Singh",
-    phone: "+91 98765 43216",
-    items: 3,
-    amount: 890,
-    date: "Yesterday, 07:15 PM",
-    status: "Pending",
-    payment: "Failed",
-  },
-];
+import { Api } from "../API/Api";
+import { filterByDate } from "../../components/Utils/StoreUtils";
 
 const Orders = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [orders, setOrders] = useState([]);
+  const [orderStats, setOrderStats] = useState([
+    {
+      title: "Total Orders",
+      value: "0",
+      subtitle: "1.2% increase from last week",
+      color: "blue",
+    },
+    {
+      title: "Processing",
+      value: "0",
+      subtitle: "Requires attention",
+      color: "amber",
+    },
+    {
+      title: "Out for Delivery",
+      value: "0",
+      subtitle: "Currently in transit",
+      color: "purple",
+    },
+    {
+      title: "Delivered Today",
+      value: "0",
+      subtitle: "Successfully fulfilled",
+      color: "emerald",
+    },
+  ]);
 
   // Order Status Badge Logic
   const getStatusBadge = (status) => {
     const styles = {
-      Pending: "bg-yellow-50 text-yellow-700 border-yellow-200",
-      Processing: "bg-blue-50 text-blue-700 border-blue-200",
-      "Out for Delivery": "bg-purple-50 text-purple-700 border-purple-200",
-      Delivered: "bg-emerald-50 text-emerald-700 border-emerald-200",
-      Cancelled: "bg-red-50 text-red-700 border-red-200",
+      PENDING: "bg-yellow-50 text-yellow-700 border-yellow-200",
+      CONFIRMED: "bg-blue-50 text-blue-700 border-blue-200",
+      SHIPPED: "bg-purple-50 text-purple-700 border-purple-200",
+      DELIVERED: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      CANCELLED: "bg-red-50 text-red-700 border-red-200",
     };
 
     const icons = {
-      Pending: <Clock className="w-3 h-3" />,
-      Processing: <ShoppingBag className="w-3 h-3" />,
-      "Out for Delivery": <Truck className="w-3 h-3" />,
-      Delivered: <CheckCircle2 className="w-3 h-3" />,
-      Cancelled: <XCircle className="w-3 h-3" />,
+      PENDING: <Clock className="w-3 h-3" />,
+      CONFIRMED: <ShoppingBag className="w-3 h-3" />,
+      SHIPPED: <Truck className="w-3 h-3" />,
+      DELIVERED: <CheckCircle2 className="w-3 h-3" />,
+      CANCELLED: <XCircle className="w-3 h-3" />,
     };
 
     return (
@@ -122,10 +77,10 @@ const Orders = () => {
   // Payment Status Badge Logic
   const getPaymentBadge = (payment) => {
     const styles = {
-      Paid: "bg-emerald-100 text-emerald-800",
-      COD: "bg-gray-100 text-gray-800",
-      Refunded: "bg-blue-100 text-blue-800",
-      Failed: "bg-red-100 text-red-800",
+      SUCCESS: "bg-emerald-100 text-emerald-800",
+      PENDING: "bg-gray-100 text-gray-800",
+      REFUNDED: "bg-blue-100 text-blue-800",
+      FAILED: "bg-red-100 text-red-800",
     };
     return (
       <span
@@ -137,14 +92,78 @@ const Orders = () => {
   };
 
   // Filter Logic
-  const filteredOrders = initialOrders.filter((order) => {
+  const filteredOrders = orders.filter((order) => {
     const matchesSearch =
-      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.customer.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
-      statusFilter === "All" || order.status === statusFilter;
+      statusFilter === "ALL" || order.orderStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  // /products/oudiac/get-products
+  const fetchOrgers = async () => {
+    const page = 0;
+    const size = 10;
+    try {
+      const response = await Api.get("/orders/oudiac/manager/get-orders", {
+        params: { page, size },
+      });
+      setOrders(response.data.content);
+      calculateOrderStats(response.data.content);
+      console.log("Fetched orders:", response.data);
+      // console.log("filtered Item :",filteredInventory);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  };
+
+  const calculateOrderStats = (orders) => {
+    const totalOrders = orders.length;
+
+    const processing = orders.filter(
+      (order) => order.orderStatus === "CONFIRMED",
+    ).length;
+
+    const outForDelivery = orders.filter(
+      (order) => order.orderStatus === "SHIPPED",
+    ).length;
+
+    const deliveredToday = orders.filter(
+      (order) => order.orderStatus === "DELIVERED",
+    ).length;
+
+    setOrderStats([
+      {
+        title: "Total Orders",
+        value: totalOrders.toString(),
+        subtitle: "Total orders",
+        color: "blue",
+      },
+      {
+        title: "Processing",
+        value: processing.toString(),
+        subtitle: "Requires attention",
+        color: "amber",
+      },
+      {
+        title: "Out for Delivery",
+        value: outForDelivery.toString(),
+        subtitle: "Currently in transit",
+        color: "purple",
+      },
+      {
+        title: "Delivered Today",
+        value: deliveredToday.toString(),
+        subtitle: "Successfully fulfilled",
+        color: "emerald",
+      },
+    ]);
+  };
+
+  useEffect(() => {
+    fetchOrgers();
+  }, []);
 
   return (
     <AdminLayout>
@@ -170,32 +189,7 @@ const Orders = () => {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {[
-          {
-            title: "Total Orders",
-            value: "1,240",
-            subtitle: "+12% from yesterday",
-            color: "blue",
-          },
-          {
-            title: "Processing",
-            value: "45",
-            subtitle: "Requires attention",
-            color: "amber",
-          },
-          {
-            title: "Out for Delivery",
-            value: "28",
-            subtitle: "Currently in transit",
-            color: "purple",
-          },
-          {
-            title: "Delivered Today",
-            value: "312",
-            subtitle: "Successfully fulfilled",
-            color: "emerald",
-          },
-        ].map((stat, i) => (
+        {orderStats.map((stat, i) => (
           <div
             key={i}
             className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm"
@@ -232,25 +226,21 @@ const Orders = () => {
 
           <div className="flex items-center gap-3 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
             <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg p-1 min-w-max">
-              {[
-                "All",
-                "Processing",
-                "Out for Delivery",
-                "Delivered",
-                "Cancelled",
-              ].map((status) => (
-                <button
-                  key={status}
-                  onClick={() => setStatusFilter(status)}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                    statusFilter === status
-                      ? "bg-white text-gray-900 shadow-sm border border-gray-200/50"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  {status}
-                </button>
-              ))}
+              {["ALL", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"].map(
+                (status) => (
+                  <button
+                    key={status}
+                    onClick={() => setStatusFilter(status)}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                      statusFilter === status
+                        ? "bg-white text-gray-900 shadow-sm border border-gray-200/50"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    {status}
+                  </button>
+                ),
+              )}
             </div>
             <button className="p-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
               <Filter className="w-5 h-5" />
@@ -281,10 +271,10 @@ const Orders = () => {
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
                         <span className="font-bold text-gray-900 hover:text-emerald-600 cursor-pointer transition-colors">
-                          {order.id}
+                          {order.orderId}
                         </span>
                         <span className="text-xs text-gray-500 mt-0.5">
-                          {order.date}
+                          {filterByDate(order.date)}
                         </span>
                       </div>
                     </td>
@@ -314,13 +304,13 @@ const Orders = () => {
                     <td className="px-6 py-4">
                       <div className="flex flex-col items-start gap-1">
                         <span className="font-bold text-gray-900 text-sm">
-                          ₹{order.amount}
+                          ₹{order.totalPrice}
                         </span>
                         {getPaymentBadge(order.payment)}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      {getStatusBadge(order.status)}
+                      {getStatusBadge(order.orderStatus)}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
