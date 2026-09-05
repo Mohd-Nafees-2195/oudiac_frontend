@@ -26,6 +26,7 @@ const menuItems = [
   { name: "My List", icon: List, path: "/my-list" },
   { name: "Wholesale", icon: Package, path: "/wholesale" },
   { name: "Address", icon: PlusCircle, path: "/add-address" },
+  { name: "Orders", icon: ShoppingCart, path: "/my-orders" },
 ];
 
 const CustomerSidebar = ({ isOpen }) => {

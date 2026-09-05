@@ -13,33 +13,36 @@ import RevenueChart from "../../components/Admin/Charts/RevenueChart";
 import RecentOrders from "../../components/Admin/Dashboard/RecentOrders";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../components/Auth/AuthContext";
-import {Api} from "../API/Api";
+import { Api } from "../API/Api";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const {user,logout}=useAuth();
-  const [stores,setStores]=useState([]);
+  const { user, logout } = useAuth();
+  const [stores, setStores] = useState([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [activeCustomers, setActiveCustomers] = useState(0);
+  const [pendingDeliveries, setPendingDeliveries] = useState(0);
 
-  if(user==null||user.role==='USER'){
+  if (user == null || user.role === "USER") {
     logout();
   }
-    const fetchStores = async () => {
+  const fetchStores = async () => {
     try {
-      const response = await Api.get(
-        "/stores/oudiac/get-stores",
-      );
+      const response = await Api.get("/stores/oudiac/get-stores");
 
       // const managersData = await response.json();
       console.log("Fetched Stores:", response.data);
       setStores(response.data);
+      console.log(response.data);
     } catch (error) {
       console.error("Error fetching Stores:", error);
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchStores();
-  },[])
+  }, []);
 
   return (
     <AdminLayout>
@@ -72,7 +75,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <StatsCard
           title="Total Revenue"
-          value="₹8,45,200"
+          value={`${totalRevenue} ₹`}
           icon={IndianRupee}
           trend="up"
           trendValue="12.5"
@@ -80,7 +83,7 @@ const Dashboard = () => {
         />
         <StatsCard
           title="Total Orders"
-          value="1,240"
+          value={totalOrders}
           icon={ShoppingBag}
           trend="up"
           trendValue="8.2"
@@ -88,7 +91,7 @@ const Dashboard = () => {
         />
         <StatsCard
           title="Active Customers"
-          value="8,924"
+          value={activeCustomers}
           icon={Users}
           trend="up"
           trendValue="5.4"
@@ -96,7 +99,7 @@ const Dashboard = () => {
         />
         <StatsCard
           title="Pending Deliveries"
-          value="42"
+          value={pendingDeliveries}
           icon={Bike}
           trend="down"
           trendValue="2.1"
