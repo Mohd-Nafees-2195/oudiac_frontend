@@ -16,7 +16,7 @@ export const ApiWithoutAuth = Axios.create({
 
 // 1. Helper function to read the cookie by its name ("jwt")
 export const getJwtFromCookie = () => {
-  const match = document.cookie.match(new RegExp('(^| )jwt=([^;]+)'));
+  const match = document.cookie.match(new RegExp("(^| )jwt=([^;]+)"));
   if (match) {
     return match[2];
   }
@@ -27,13 +27,13 @@ export const getJwtFromCookie = () => {
 Api.interceptors.request.use((config) => {
   const token = getJwtFromCookie();
   if (token) {
-    // You can either let the browser send it as a cookie, 
+    // You can either let the browser send it as a cookie,
     // OR manually attach it as a Bearer token like this:
-    console.log("Inside Interceptor",token);
-    console.log("Config before attaching token:", config);
+    // console.log("Inside Interceptor",token);
+    // console.log("Config before attaching token:", config);
     // config.headers["Authorization"] = `Bearer ${token}`;
     // config.headers.Authorization = `Bearer ${token}`;
-    config.headers.set('Authorization', `Bearer ${token}`);
+    config.headers.set("Authorization", `Bearer ${token}`);
   }
   return config;
 });
@@ -46,10 +46,13 @@ Api.interceptors.response.use(
     // console.dir(error); // .dir gives a better expandable object view
     // console.log("Status:", error.response?.status);
     // console.log("===============================");
-    if (error.message === 'Network Error' || (error.response && error.response.status >= 500)) {
-       document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-       console.log("APi response >500 or network error");
-       window.location.href = "/503";
+    if (
+      error.message === "Network Error" ||
+      (error.response && error.response.status >= 500)
+    ) {
+      document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      console.log("APi response >500 or network error");
+      window.location.href = "/503";
     }
     if (error.response && error.response.status === 401) {
       // Delete the cookie by setting its expiration date to the past
@@ -57,7 +60,7 @@ Api.interceptors.response.use(
       window.location.href = "/admin/login";
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export const CustomerApi = Axios.create({
@@ -71,9 +74,12 @@ CustomerApi.interceptors.response.use(
     // console.dir(error); // .dir gives a better expandable object view
     // console.log("Status:", error.response?.status);
     // console.log("===============================");
-    if (error.message === 'Network Error' || (error.response && error.response.status >= 500)) {
-       document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-       window.location.href = "/server-dwon";
+    if (
+      error.message === "Network Error" ||
+      (error.response && error.response.status >= 500)
+    ) {
+      document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      window.location.href = "/server-dwon";
     }
     if (error.response && error.response.status === 401) {
       // Delete the cookie by setting its expiration date to the past
@@ -81,19 +87,19 @@ CustomerApi.interceptors.response.use(
       window.location.href = "/login";
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 CustomerApi.interceptors.request.use((config) => {
   const token = getJwtFromCookie();
   if (token) {
-    // You can either let the browser send it as a cookie, 
+    // You can either let the browser send it as a cookie,
     // OR manually attach it as a Bearer token like this:
     // console.log("Inside Interceptor",token);
     console.log("Config before attaching token:", config);
     // config.headers["Authorization"] = `Bearer ${token}`;
     // config.headers.Authorization = `Bearer ${token}`;
-    config.headers.set('Authorization', `Bearer ${token}`);
+    config.headers.set("Authorization", `Bearer ${token}`);
   }
   return config;
 });

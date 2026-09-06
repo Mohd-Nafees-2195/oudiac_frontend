@@ -15,11 +15,14 @@ import {
 import AdminLayout from "../../components/Admin/Layout/AdminLayout"; // Adjust path based on your setup
 import { Api } from "../API/Api";
 import { filterByDate } from "../../components/Utils/StoreUtils";
+import OrderDetails from "./OrderDetails";
 
 const Orders = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [orders, setOrders] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [orderStats, setOrderStats] = useState([
     {
       title: "Total Orders",
@@ -161,9 +164,23 @@ const Orders = () => {
     ]);
   };
 
+  const handleUpdateStatus = (orderId, newStatus) => {
+    // Call your API or state updater here:
+    console.log(`Update ${orderId} to ${newStatus}`);
+  };
+
   useEffect(() => {
     fetchOrgers();
   }, []);
+
+  if (selectedOrder) {
+    return (
+      <OrderDetails
+        order={selectedOrder}
+        onBack={() => setSelectedOrder(null)}
+      />
+    );
+  }
 
   return (
     <AdminLayout>
@@ -298,7 +315,7 @@ const Orders = () => {
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-700 text-xs font-bold">
-                        {order.items}
+                        {order.orderItems.length}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -318,6 +335,7 @@ const Orders = () => {
                           Update
                         </button>
                         <button
+                          onClick={() => setSelectedOrder(order)}
                           className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="View Details"
                         >

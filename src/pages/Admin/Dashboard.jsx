@@ -20,13 +20,41 @@ const Dashboard = () => {
   const { user, logout } = useAuth();
   const [stores, setStores] = useState([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
-  const [totalOrders, setTotalOrders] = useState(0);
   const [activeCustomers, setActiveCustomers] = useState(0);
   const [pendingDeliveries, setPendingDeliveries] = useState(0);
+  const [orders, setOrders] = useState([]);
 
   if (user == null || user.role === "USER") {
     logout();
   }
+
+  // /products/oudiac/get-products
+  const fetchCurrentOrders = async () => {
+    const page = 0;
+    const size = 10;
+    try {
+      const response = await Api.get("/orders/oudiac/manager/get-curr-orders", {
+        params: { page, size },
+      });
+      setOrders(response.data.content);
+
+      const totalRevenue = response.data.content
+        .filter((order) => order.orderStatus === "DELIVERED")
+        .reduce((total, order) => total + Number(order.totalAmount), 0);
+
+      const pendingDeliveries = response.data.content.filter(
+        (order) => order.orderStatus === "CONFIRMED",
+      ).length;
+
+      setTotalRevenue(totalRevenue);
+      setPendingDeliveries(pendingDeliveries);
+      console.log("Fetched orders:", response.data);
+      // console.log("filtered Item :",filteredInventory);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  };
+
   const fetchStores = async () => {
     try {
       const response = await Api.get("/stores/oudiac/get-stores");
@@ -42,6 +70,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchStores();
+    fetchCurrentOrders();
   }, []);
 
   return (
@@ -83,7 +112,7 @@ const Dashboard = () => {
         />
         <StatsCard
           title="Total Orders"
-          value={totalOrders}
+          value={orders.length}
           icon={ShoppingBag}
           trend="up"
           trendValue="8.2"
@@ -152,7 +181,7 @@ const Dashboard = () => {
 
       {/* Orders Table */}
       <div className="w-full">
-        <RecentOrders />
+        <RecentOrders orders={orders} />
       </div>
     </AdminLayout>
   );
