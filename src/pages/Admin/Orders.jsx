@@ -23,6 +23,7 @@ const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [orderHistory, setOrderHistory] = useState([]);
   const [orderStats, setOrderStats] = useState([
     {
       title: "Total Orders",
@@ -121,6 +122,21 @@ const Orders = () => {
     }
   };
 
+  //,"/api/order-history/oudiac/**"
+  const fetchOrderHistory = async (orderId) => {
+    try {
+      const response = await Api.get(
+        "/order-history/oudiac/get-history/" + orderId,
+      );
+
+      setOrderHistory(response.data);
+      console.log("Fetched order history:", response.data);
+      // console.log("filtered Item :",filteredInventory);
+    } catch (error) {
+      console.error("Error fetching order history:", error);
+    }
+  };
+
   const calculateOrderStats = (orders) => {
     const totalOrders = orders.length;
 
@@ -150,13 +166,13 @@ const Orders = () => {
         color: "amber",
       },
       {
-        title: "Out for Delivery",
+        title: "Shipped",
         value: outForDelivery.toString(),
         subtitle: "Currently in transit",
         color: "purple",
       },
       {
-        title: "Delivered Today",
+        title: "Delivered",
         value: deliveredToday.toString(),
         subtitle: "Successfully fulfilled",
         color: "emerald",
@@ -168,6 +184,10 @@ const Orders = () => {
     // Call your API or state updater here:
     console.log(`Update ${orderId} to ${newStatus}`);
   };
+  const handleViewDetails = (order) => {
+    fetchOrderHistory(order.id);
+    setSelectedOrder(order);
+  };
 
   useEffect(() => {
     fetchOrgers();
@@ -177,6 +197,7 @@ const Orders = () => {
     return (
       <OrderDetails
         order={selectedOrder}
+        orderHistory={orderHistory}
         onBack={() => setSelectedOrder(null)}
       />
     );
@@ -335,7 +356,7 @@ const Orders = () => {
                           Update
                         </button>
                         <button
-                          onClick={() => setSelectedOrder(order)}
+                          onClick={() => handleViewDetails(order)}
                           className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="View Details"
                         >

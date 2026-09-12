@@ -22,7 +22,12 @@ const LandingPage = () => {
         {/* Produce visual */}
         <div className="relative z-10 mb-10">
           <div className="w-72 h-72 bg-white/20 rounded-full flex items-center justify-center">
-            <div className="text-9xl">🛒</div>
+            <img
+              src="/image.png"
+              alt="Shopping cart"
+              className="w-50 h-70 object-contain top-1/2 -right-8 animate-bounce"
+              style={{ animationDelay: "0.3s" }}
+            />
           </div>
           {/* Floating items */}
           <div className="absolute -top-4 -right-4 text-5xl animate-bounce"></div>

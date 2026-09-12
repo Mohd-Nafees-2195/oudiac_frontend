@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   ArrowLeft,
   Printer,
@@ -13,6 +13,8 @@ import {
   Mail,
   ShieldCheck,
 } from "lucide-react";
+import AdminLayout from "../../components/Admin/Layout/AdminLayout";
+import { filterByDateAndTime } from "../../components/Utils/StoreUtils";
 
 const mockOrder = {
   id: "ORD-94821",
@@ -74,134 +76,132 @@ const mockOrder = {
   total: 299.13,
 };
 
-export default function OrderDetails({ order, onBack }) {
-  //   if (isLoading) {
-  //     return <div>Loading...</div>;
-  //   }
-
+export default function OrderDetails({ order, orderHistory, onBack }) {
   if (!order) {
     return <div>No order selected</div>;
   }
+  console.log("Order History in OrderDetails:", orderHistory);
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-5">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={onBack}
-            className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-600 transition"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">
-                {order.orderId}
-              </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
-                {order.orderStatus}
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
-                {order.payment == "SUCCESS" ? "Paid" : "Pending"}
-              </span>
+    <AdminLayout>
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-5">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={onBack}
+              className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-600 transition"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {order.orderId}
+                </h1>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                  {order.orderStatus}
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+                  {order.payment == "SUCCESS" ? "Paid" : "Pending"}
+                </span>
+              </div>
+              <p className="text-sm text-gray-500 mt-0.5">
+                Placed on {order.date}
+              </p>
             </div>
-            <p className="text-sm text-gray-500 mt-0.5">
-              Placed on {order.date}
-            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+            >
+              <Printer className="w-4 h-4" />
+              Print Invoice
+            </button>
+            <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition shadow-sm">
+              Update Status
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => window.print()}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
-          >
-            <Printer className="w-4 h-4" />
-            Print Invoice
-          </button>
-          <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition shadow-sm">
-            Update Status
-          </button>
-        </div>
-      </div>
-
-      {/* Progress Timeline */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-        <h2 className="text-base font-semibold text-gray-900 mb-6">
-          Order Progress
-        </h2>
-        <div className="flex flex-col md:flex-row justify-between relative gap-4">
-          {mockOrder.timeline.map((step, idx) => (
-            <div
-              key={idx}
-              className="flex md:flex-col items-center gap-3 md:gap-2 flex-1 relative"
-            >
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${
-                  step.completed
-                    ? "bg-indigo-600 text-white"
-                    : "bg-gray-100 text-gray-400 border border-gray-300"
-                }`}
-              >
-                {step.completed ? <CheckCircle className="w-4 h-4" /> : idx + 1}
-              </div>
-              <div className="md:text-center">
-                <p
-                  className={`text-sm font-medium ${step.completed ? "text-gray-900" : "text-gray-400"}`}
+        {/* Progress Timeline */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <h2 className="text-base font-semibold text-gray-900 mb-6">
+            Order Progress
+          </h2>
+          <div className="flex flex-col md:flex-row justify-between relative gap-4">
+            {orderHistory.length > 0 &&
+              orderHistory.map((step, idx) => (
+                <div
+                  key={idx}
+                  className="flex md:flex-col items-center gap-3 md:gap-2 flex-1 relative"
                 >
-                  {step.title}
-                </p>
-                <p className="text-xs text-gray-400 mt-0.5">{step.date}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Cols: Order Items & Financials */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50/50">
-              <h2 className="text-base font-semibold text-gray-900">
-                Ordered Products
-              </h2>
-            </div>
-            <div className="divide-y divide-gray-200">
-              {order.orderItems.map((item) => (
-                <div key={item.id} className="p-6 flex items-center gap-4">
-                  <img
-                    src={item.url}
-                    alt={item.productName}
-                    className="w-16 h-16 object-cover rounded-lg border border-gray-100 flex-shrink-0"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-medium text-gray-900 truncate">
-                      {item.productName}
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      SKU: {item.sku}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Qty: {item.quantity}
-                    </p>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-indigo-600 text-white">
+                    <CheckCircle className="w-4 h-4" />
+                    {/* {step.completed ? (
+                    <CheckCircle className="w-4 h-4" />
+                  ) : (
+                    idx + 1
+                  )} */}
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-gray-900">
-                      ${(item.unitPrice * item.quantity).toFixed(2)}
+                  <div className="md:text-center">
+                    <p className="text-sm font-medium ${step.title text-gray-400">
+                      {step.title}
                     </p>
-                    <p className="text-xs text-gray-500">
-                      ${item.unitPrice.toFixed(2)} each
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {filterByDateAndTime(step.updatedAt)}
                     </p>
                   </div>
                 </div>
               ))}
-            </div>
+          </div>
+        </div>
 
-            {/* Price Summary */}
-            {/* <div className="p-6 bg-gray-50/50 border-t border-gray-200 space-y-2.5">
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left 2 Cols: Order Items & Financials */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50/50">
+                <h2 className="text-base font-semibold text-gray-900">
+                  Ordered Products
+                </h2>
+              </div>
+              <div className="divide-y divide-gray-200">
+                {order.orderItems.map((item) => (
+                  <div key={item.id} className="p-6 flex items-center gap-4">
+                    <img
+                      src={item.url}
+                      alt={item.productName}
+                      className="w-16 h-16 object-cover rounded-lg border border-gray-100 flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-medium text-gray-900 truncate">
+                        {item.productName}
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        SKU: {item.sku}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Qty: {item.quantity}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-gray-900">
+                        ${(item.unitPrice * item.quantity).toFixed(2)}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        ${item.unitPrice.toFixed(2)} each
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Price Summary */}
+              {/* <div className="p-6 bg-gray-50/50 border-t border-gray-200 space-y-2.5">
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Subtotal</span>
                 <span>${order.subtotal.toFixed(2)}</span>
@@ -223,13 +223,13 @@ export default function OrderDetails({ order, onBack }) {
                 <span>${order.total.toFixed(2)}</span>
               </div>
             </div> */}
+            </div>
           </div>
-        </div>
 
-        {/* Right 1 Col: Customer, Shipping, Delivery Partner */}
-        {/* Customer Details */}
-        <div className="space-y-6">
-          {/* <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4">
+          {/* Right 1 Col: Customer, Shipping, Delivery Partner */}
+          {/* Customer Details */}
+          <div className="space-y-6">
+            {/* <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4">
             <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
               <User className="w-4 h-4 text-indigo-600" />
               Customer Information
@@ -259,8 +259,8 @@ export default function OrderDetails({ order, onBack }) {
             </div>
           </div> */}
 
-          {/* Shipping Address */}
-          {/* <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-3">
+            {/* Shipping Address */}
+            {/* <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-3">
             <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
               <MapPin className="w-4 h-4 text-indigo-600" />
               Delivery Destination
@@ -275,8 +275,8 @@ export default function OrderDetails({ order, onBack }) {
             </p>
           </div> */}
 
-          {/* Logistics & Delivery Partner */}
-          {/* <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-3">
+            {/* Logistics & Delivery Partner */}
+            {/* <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-3">
             <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
               <Truck className="w-4 h-4 text-indigo-600" />
               Assigned Partner
@@ -298,8 +298,8 @@ export default function OrderDetails({ order, onBack }) {
             </div>
           </div> */}
 
-          {/* Payment Overview */}
-          {/* <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-3">
+            {/* Payment Overview */}
+            {/* <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-3">
             <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
               <CreditCard className="w-4 h-4 text-indigo-600" />
               Payment Details
@@ -317,8 +317,9 @@ export default function OrderDetails({ order, onBack }) {
               </span>
             </div>
           </div> */}
+          </div>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
